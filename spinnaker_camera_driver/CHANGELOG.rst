@@ -2,6 +2,16 @@
 Changelog for package spinnaker_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add option to disable external control (default!)
+* updated docs for sync driver, switch to RST
+* widened the ExposureController interface
+* fix build errors on rolling/noble
+* added blacklevel and whitebalance support for blackfly
+* use proper name for camerainfo when using sync driver
+* Contributors: Bernd Pfrommer
+
 2.0.15 (2024-03-28)
 -------------------
 * fixes to compile on focal/galactic

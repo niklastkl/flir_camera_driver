@@ -2,6 +2,12 @@
 Changelog for package spinnaker_synchronized_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* updated docs for sync driver, switch to RST
+* added follower exposure controller renamed individual -> master
+* Contributors: Bernd Pfrommer
+
 2.0.15 (2024-03-28)
 -------------------
 * fixes to compile on focal/galactic

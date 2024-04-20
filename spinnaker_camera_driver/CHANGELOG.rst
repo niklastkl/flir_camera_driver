@@ -2,8 +2,8 @@
 Changelog for package spinnaker_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.1.16 (2024-04-20)
+-------------------
 * add option to disable external control (default!)
 * updated docs for sync driver, switch to RST
 * widened the ExposureController interface

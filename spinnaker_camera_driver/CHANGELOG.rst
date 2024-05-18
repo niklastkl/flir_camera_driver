@@ -2,6 +2,12 @@
 Changelog for package spinnaker_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* fix broken composable node by installing in correct location
+* Add FLIR-AX5 Camera
+* Contributors: Bernd Pfrommer, anonymousarmadillo100
+
 2.2.16 (2024-04-20)
 -------------------
 * add option to disable external control (default!)

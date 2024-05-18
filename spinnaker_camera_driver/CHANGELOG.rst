@@ -2,8 +2,8 @@
 Changelog for package spinnaker_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.17 (2024-05-18)
+-------------------
 * fix broken composable node by installing in correct location
 * Add FLIR-AX5 Camera
 * Contributors: Bernd Pfrommer, anonymousarmadillo100

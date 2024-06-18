@@ -2,8 +2,8 @@
 Changelog for package spinnaker_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.19 (2024-06-18)
+-------------------
 * remove unnecessary debs from package
 * Contributors: Bernd Pfrommer
 

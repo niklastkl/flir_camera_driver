@@ -2,6 +2,11 @@
 Changelog for package spinnaker_synchronized_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added primary_secondary launch file
+* Contributors: Bernd Pfrommer
+
 2.0.17 (2024-05-18)
 -------------------
 

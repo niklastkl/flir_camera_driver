@@ -2,6 +2,11 @@
 Changelog for package spinnaker_camera_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* remove unnecessary debs from package
+* Contributors: Bernd Pfrommer
+
 2.0.18 (2024-06-18)
 -------------------
 * point to new spinnaker sdk for noble

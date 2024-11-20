@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="spinnaker_camera_driver" type="ptp_activate" name="ptp_activate" output="screen"/>
+</launch>

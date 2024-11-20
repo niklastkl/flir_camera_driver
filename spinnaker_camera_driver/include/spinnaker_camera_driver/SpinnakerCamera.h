@@ -160,6 +160,10 @@ public:
   */
   void setDesiredCamera(const uint32_t& id);
 
+  void setPTPConfig(bool use_ptp){
+    use_ptp_ = use_ptp;
+  }
+
   void setGain(const float& gain);
   int getHeightMax();
   int getWidthMax();
@@ -201,11 +205,19 @@ private:
 
   uint64_t timeout_;
 
+  std::chrono::time_point<std::chrono::high_resolution_clock> last_valid_img_time_point_;
+  uint64_t last_time_stamp_{0};
+
   // This function configures the camera to add chunk data to each image. It does
   // this by enabling each type of chunk data before enabling chunk data mode.
   // When chunk data is turned on, the data is made available in both the nodemap
   // and each image.
   void ConfigureChunkData(const Spinnaker::GenApi::INodeMap& nodeMap);
+
+
+  // Enables PTP and checks the monitors the offset to the master until the desired offset is reached
+  void ConfigurePTP();
+  bool use_ptp_;
 };
 }  // namespace spinnaker_camera_driver
 #endif  // SPINNAKER_CAMERA_DRIVER_SPINNAKERCAMERA_H

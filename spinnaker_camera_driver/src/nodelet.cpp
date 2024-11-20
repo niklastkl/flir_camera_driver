@@ -311,6 +311,13 @@ private:
     pnh.param<std::string>("camera_info_url", camera_info_url, "");
     // Get the desired frame_id, set to 'camera' if not found
     pnh.param<std::string>("frame_id", frame_id_, "camera");
+
+    pnh.param<bool>("use_hardware_clock", use_hardware_clock_, false);
+
+    if (use_hardware_clock_){
+      spinnaker_.setPTPConfig(true);
+    }
+
     // Do not call the connectCb function until after we are done initializing.
     std::lock_guard<std::mutex> scopedLock(connect_mutex_);
 
@@ -516,7 +523,6 @@ private:
             spinnaker_.connect();
 
             NODELET_DEBUG("Connected to camera.");
-
             // Set last configuration, forcing the reconfigure level to stop
             spinnaker_.setNewConfiguration(config_, SpinnakerCamera::LEVEL_RECONFIGURE_STOP);
 
@@ -593,7 +599,12 @@ private:
 
             // wfov_image->temperature = spinnaker_.getCameraTemperature();
 
-            ros::Time time = ros::Time::now() + ros::Duration(config_.time_offset);
+            ros::Time time;
+            if (use_hardware_clock_){
+              time = wfov_image->image.header.stamp;
+            } else {
+              time = ros::Time::now() + ros::Duration(config_.time_offset);
+            }
             wfov_image->header.stamp = time;
             wfov_image->image.header.stamp = time;
 
@@ -695,6 +706,7 @@ private:
   std::string frame_id_;           ///< Frame id for the camera messages, defaults to 'camera'
   std::shared_ptr<boost::thread> pubThread_;  ///< The thread that reads and publishes the images.
   std::shared_ptr<boost::thread> diagThread_;  ///< The thread that reads and publishes the diagnostics.
+  bool use_hardware_clock_;  ///< decides if time stamp information from received images is used instead of using ROS time
 
   std::unique_ptr<DiagnosticsManager> diag_man;
 

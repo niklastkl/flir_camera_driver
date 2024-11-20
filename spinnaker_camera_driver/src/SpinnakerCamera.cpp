@@ -41,13 +41,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "spinnaker_camera_driver/SpinnakerCamera.h"
+#include "spinnaker_camera_driver/ptp_config.h"
 
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
 #include <string>
-
 #include <ros/ros.h>
+
+using namespace std::chrono;
 
 namespace spinnaker_camera_driver
 {
@@ -250,6 +252,9 @@ void SpinnakerCamera::connect()
         ROS_WARN("SpinnakerCamera::connect: Could not detect camera model name.");
       }
 
+      if (use_ptp_){
+        ConfigurePTP();
+      }
       // Configure chunk data - Enable Metadata
       // SpinnakerCamera::ConfigureChunkData(*node_map_);
     }
@@ -260,7 +265,7 @@ void SpinnakerCamera::connect()
     }
     catch (const std::runtime_error& e)
     {
-      throw std::runtime_error("[SpinnakerCamera::connect] Failed to configure chunk data. Error: " +
+      throw std::runtime_error("[SpinnakerCamera::connect] Failed in additional configuration. Error: " +
                                std::string(e.what()));
     }
   }
@@ -357,9 +362,24 @@ void SpinnakerCamera::grabImage(sensor_msgs::Image* image, const std::string& fr
         image_ptr = pCam_->GetNextImage(timeout_);
       }
 
-      // Set Image Time Stamp
-      image->header.stamp.sec = image_ptr->GetTimeStamp() * 1e-9;
-      image->header.stamp.nsec = image_ptr->GetTimeStamp();
+      ros::Time time_stamp;
+      if ((last_time_stamp_ == 0) && (image_ptr->GetTimeStamp() < 1)){
+        throw std::runtime_error("[SpinnakerCamera::grabImage] Retrieved zero timestamp in first message, correction not possible.");
+      }
+      // correct for sometimes having zero nanoseconds as time stamp ore single frames backwards in time
+      if ((image_ptr->GetTimeStamp() < 1) || (image_ptr->GetTimeStamp() < last_time_stamp_)){  
+        const uint64_t delta_ns = duration_cast<nanoseconds>(high_resolution_clock::now() - last_valid_img_time_point_).count();
+        std::cout << "Raw time stamp: " << image_ptr->GetTimeStamp() << std::endl;
+        std::cout << "Last time stamp: " << last_time_stamp_<< std::endl;
+        std::cout << "Corrected time stamp: " << last_time_stamp_ + delta_ns << std::endl;
+        time_stamp.fromNSec(last_time_stamp_ + delta_ns);
+      } else {
+        time_stamp.fromNSec(image_ptr->GetTimeStamp());
+        last_valid_img_time_point_ = high_resolution_clock::now();
+        last_time_stamp_ = image_ptr->GetTimeStamp();
+      }
+      
+      image->header.stamp = time_stamp; 
 
       // Check the bits per pixel.
       size_t bitsPerPixel = image_ptr->GetBitsPerPixel();
@@ -562,6 +582,23 @@ void SpinnakerCamera::ConfigureChunkData(const Spinnaker::GenApi::INodeMap& node
   catch (const Spinnaker::Exception& e)
   {
     throw std::runtime_error(e.what());
+  }
+}
+
+void SpinnakerCamera::ConfigurePTP(){
+  // activate PTP if not activated yet:
+  try{
+    if (!ptp_config::SetPTPStatus(pCam_, true)){
+      throw std::runtime_error("Error enabling PTP");
+    }
+    if (!ptp_config::CheckPTPSyncStatus(pCam_, 1000)){
+      throw std::runtime_error("Error testing PTP synchronization status");
+    }
+  }
+
+  catch (const std::runtime_error& e)
+  {
+    throw std::runtime_error("[SpinnakerCamera::configurePTP] Error configuring PTP: " + std::string(e.what()));
   }
 }
 }  // namespace spinnaker_camera_driver

@@ -42,11 +42,17 @@ include_directories(SYSTEM
                     ${catkin_INCLUDE_DIRS})
 include_directories(include)
 
+add_library(ptp_config src/ptp_config.cpp)
+target_link_libraries(ptp_config
+  ${Spinnaker_LIBRARIES})
+
+
 add_library(SpinnakerCameraLib src/SpinnakerCamera.cpp)
 
 # Include the Spinnaker Libs
 target_link_libraries(SpinnakerCameraLib
                       Camera
+                      ptp_config
                       ${Spinnaker_LIBRARIES}
                       ${catkin_LIBRARIES})
 
@@ -61,6 +67,26 @@ target_link_libraries(spinnaker_test_node
   ${catkin_LIBRARIES}
 )
 
+add_executable(ptp_activate
+  src/ptp_activate.cpp
+)
+target_link_libraries(ptp_activate
+  ptp_config
+)
+
+add_executable(ptp_deactivate
+  src/ptp_deactivate.cpp
+)
+target_link_libraries(ptp_deactivate
+  ptp_config
+)
+
+add_executable(ptp_get_status
+  src/ptp_get_status.cpp
+)
+target_link_libraries(ptp_get_status
+  ptp_config
+)
 
 add_dependencies(SpinnakerCameraLib ${PROJECT_NAME}_gencfg)
 
@@ -96,6 +122,9 @@ install(TARGETS
   Gh3
   Diagnostics
   spinnaker_camera_node
+  ptp_activate
+  ptp_deactivate
+  ptp_get_status
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -117,6 +146,10 @@ endif()
 install(FILES nodelet_plugins.xml DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION} )
 
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+install(PROGRAMS scripts/install_ptp_upstart
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 if (CATKIN_ENABLE_TESTING)
   find_package(roslaunch REQUIRED)

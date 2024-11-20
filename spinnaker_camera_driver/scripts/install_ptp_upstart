@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+import os
+import robot_upstart
+
+from subprocess import call
+from catkin.find_in_workspaces import find_in_workspaces
+
+main_job = robot_upstart.Job(name="ros_spinnaker_ptp")
+main_job.symlink=True
+main_job.add(package="spinnaker_camera_driver", filename="launch/activate_ptp.launch")
+main_job.install()
+
+# Wait to for can-udp-bridge to be up before starting ROS
+os.system("sudo  sed -i '/After/c After=can-udp-bridge.service' /lib/systemd/system/ros_spinnaker_ptp.service")

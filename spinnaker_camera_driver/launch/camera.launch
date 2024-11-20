@@ -30,6 +30,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <arg name="camera_serial"             default="0" />
   <arg name="calibrated"                default="0" />
   <arg name="device_type"               default="USB3" /> <!-- USB3 or GigE -->
+  <arg name="use_hardware_clock"        default="false" /> 
 
   <!-- When unspecified, the driver will use the default framerate as given by the
       camera itself. Use the parameter 'control_frame_rate' to enable manual frame 
@@ -63,7 +64,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <group ns="$(arg camera_name)">
     <!-- Nodelet manager -->
     <node pkg="nodelet" type="nodelet" name="camera_nodelet_manager" args="manager" cwd="node" output="screen"/>
-->
+
     <!-- Camera nodelet -->
     <node pkg="nodelet" type="nodelet" name="spinnaker_camera_nodelet"
           args="load spinnaker_camera_driver/SpinnakerCameraNodelet camera_nodelet_manager" >
@@ -71,6 +72,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
       <param name="frame_id"                        value="$(arg camera_name)" />
       <param name="serial"                          value="$(arg camera_serial)" />
       <param name="device_type"                     value="$(arg device_type)" />
+      <param name="use_hardware_clock"              value="$(arg use_hardware_clock)" />
 
       <!-- Frame rate -->
       <param name="acquisition_frame_rate_enable"   value="$(arg control_frame_rate)" />

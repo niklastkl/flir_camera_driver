@@ -354,32 +354,30 @@ void SpinnakerCamera::grabImage(sensor_msgs::Image* image, const std::string& fr
       //  throw std::runtime_error("[SpinnakerCamera::grabImage] Image received from camera "
       //                            + std::to_string(serial_)
       //                            + " is incomplete.");
-      while (image_ptr->IsIncomplete())
-      {
-        ROS_WARN_STREAM_ONCE("[SpinnakerCamera::grabImage] Image received from camera "
-                              << std::to_string(serial_)
-                              << " is incomplete. Trying again.");
-        image_ptr = pCam_->GetNextImage(timeout_);
-      }
-
-      ros::Time time_stamp;
-      if ((last_time_stamp_ == 0) && (image_ptr->GetTimeStamp() < 1)){
-        throw std::runtime_error("[SpinnakerCamera::grabImage] Retrieved zero timestamp in first message, correction not possible.");
-      }
-      // correct for sometimes having zero nanoseconds as time stamp ore single frames backwards in time
-      if ((image_ptr->GetTimeStamp() < 1) || (image_ptr->GetTimeStamp() < last_time_stamp_)){  
-        const uint64_t delta_ns = duration_cast<nanoseconds>(high_resolution_clock::now() - last_valid_img_time_point_).count();
-        std::cout << "Raw time stamp: " << image_ptr->GetTimeStamp() << std::endl;
-        std::cout << "Last time stamp: " << last_time_stamp_<< std::endl;
-        std::cout << "Corrected time stamp: " << last_time_stamp_ + delta_ns << std::endl;
-        time_stamp.fromNSec(last_time_stamp_ + delta_ns);
-      } else {
-        time_stamp.fromNSec(image_ptr->GetTimeStamp());
-        last_valid_img_time_point_ = high_resolution_clock::now();
-        last_time_stamp_ = image_ptr->GetTimeStamp();
+      bool valid_image = false;
+      while (!valid_image){
+        while (image_ptr->IsIncomplete())
+        {
+          ROS_WARN_STREAM_ONCE("[SpinnakerCamera::grabImage] Image received from camera "
+                                << std::to_string(serial_)
+                                << " is incomplete. Trying again.");
+          image_ptr = pCam_->GetNextImage(timeout_);
+        }
+        valid_image = true;
+        valid_image &= image_ptr->GetTimeStamp() > 0; // sometimes time stamps with zero nanoseconds appear
+        valid_image &= image_ptr->GetTimeStamp() > last_time_stamp_; // sometimes images have lower timestamps than previous images
+        
+        if (valid_image){
+          last_time_stamp_ = image_ptr->GetTimeStamp();
+        } else {
+          std::cout << "[SpinnakerCamera::grabImage] Image time stamp not valid" << std::endl;
+          std::cout << "[SpinnakerCamera::grabImage] Time stamp: " << image_ptr->GetTimeStamp() << std::endl;
+          std::cout << "[SpinnakerCamera::grabImage] Last time stamp: " << last_time_stamp_<< std::endl;
+          image_ptr = pCam_->GetNextImage(timeout_);
+        }
       }
       
-      image->header.stamp = time_stamp; 
+      image->header.stamp.fromNSec(image_ptr->GetTimeStamp()); 
 
       // Check the bits per pixel.
       size_t bitsPerPixel = image_ptr->GetBitsPerPixel();

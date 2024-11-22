@@ -135,8 +135,8 @@ namespace ptp_config{
     }
 }
 
-SpinnakerCamInterface::SpinnakerCamInterface(){
-    Init();
+SpinnakerCamInterface::SpinnakerCamInterface(int max_connection_retries){
+    Init(max_connection_retries);
 }
 
 SpinnakerCamInterface::~SpinnakerCamInterface(){
@@ -145,7 +145,7 @@ SpinnakerCamInterface::~SpinnakerCamInterface(){
     systemPtr_->ReleaseInstance();
 }   
 
-void SpinnakerCamInterface::Init(){
+void SpinnakerCamInterface::Init(int max_connection_retries){
     systemPtr_ = Spinnaker::System::GetInstance();
 
     interfaceList_ = systemPtr_->GetInterfaces();
@@ -156,7 +156,17 @@ void SpinnakerCamInterface::Init(){
     unsigned int numCameras = camList_.GetSize();
 
     std::printf("\033[93m[Spinnaker] # of connected cameras: %d \n", numCameras);
+
+    int connection_counter = 0;
+    while(numCameras == 0 && connection_counter < max_connection_retries) {
+        std::cout << "Attempt to connect to camera " << connection_counter << " out of " << max_connection_retries << std::endl;
+        camList_ = systemPtr_->GetCameras();
+        numCameras = camList_.GetSize();
+        connection_counter += 1;
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+    }
     
+
     // Finish if there are no cameras
     if (numCameras == 0)
     {

@@ -11,11 +11,11 @@ namespace ptp_config{
 
 class SpinnakerCamInterface{
     public:
-        SpinnakerCamInterface();
+        SpinnakerCamInterface(int max_connection_retries=3);
         
         ~SpinnakerCamInterface();
 
-        void Init();
+        void Init(int max_connection_retries);
 
         void PrintSpinnakerVersion();
 

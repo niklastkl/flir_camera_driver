@@ -11,4 +11,6 @@ main_job.add(package="spinnaker_camera_driver", filename="launch/activate_ptp.la
 main_job.install()
 
 # Wait to for can-udp-bridge to be up before starting ROS
-os.system("sudo  sed -i '/After/c After=can-udp-bridge.service' /lib/systemd/system/ros_spinnaker_ptp.service")
+os.system("sudo  sed -i '/After/c After=ros.service' /lib/systemd/system/ros_spinnaker_ptp.service")
+os.system("sudo  sed -i '/ExecStart/a Restart=on-failure' /lib/systemd/system/ros_spinnaker_ptp.service")
+os.system("sudo  sed -i '/Restart/a RestartSec=5' /lib/systemd/system/ros_spinnaker_ptp.service")
